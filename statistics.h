@@ -11,43 +11,44 @@
 
 class CStatistics
 {
-    friend class CSolver;
-public:
-    CStatistics(int num_blocks) :
-	num_blocks(num_blocks) ,
-	blockTouches(num_blocks, num_blocks) ,
-	blockTouchesNonZero(num_blocks, num_blocks)
-    {
-	TRACE_FUNCTION("CStatistics::CStatistics");
-	Clear();
-    }
+    friend class CSolver;    // This is a dirty hack!
 
-    void Update(const Array<int>& board);
-    void Clear(void);
-    void StartTimer(void);
-    void Print(void) const;
+    public:
+        CStatistics(int num_blocks) :
+            m_num_blocks(num_blocks) ,
+            m_blockTouches(num_blocks, num_blocks) ,
+            m_blockTouchesNonZero(num_blocks, num_blocks)
+        {
+            TRACE_FUNCTION("CStatistics::CStatistics");
+            Clear();
+        }
 
-private:
+        void Update(const Array<int>& board);
+        void Clear(void);
+        void StartTimer(void);
+        void Print(void) const;
+
+    private:
 
 #ifdef STATISTICS
-    unsigned long examine_tests[MAX_BLOCKS+1];
-    unsigned long examine_nolegal[MAX_BLOCKS+1];
-    unsigned long examine_onlymove[MAX_BLOCKS+1];
-    unsigned long examine_cutoffs[MAX_BLOCKS+1];
-    unsigned long examine_oneblock[MAX_BLOCKS+1];
-    unsigned long examine_recurse[MAX_BLOCKS+1];
+        unsigned long m_examine_tests[MAX_BLOCKS+1];
+        unsigned long m_examine_nolegal[MAX_BLOCKS+1];
+        unsigned long m_examine_onlymove[MAX_BLOCKS+1];
+        unsigned long m_examine_cutoffs[MAX_BLOCKS+1];
+        unsigned long m_examine_oneblock[MAX_BLOCKS+1];
+        unsigned long m_examine_recurse[MAX_BLOCKS+1];
 #endif
 
-    unsigned int num_blocks;
+        unsigned int m_num_blocks;
 
-    Array<int> blockTouches;
-    Array<int> blockTouchesNonZero;
+        Array<int> m_blockTouches;
+        Array<int> m_blockTouchesNonZero;
 
-    unsigned long solutions;
-    unsigned long nodes;
-    unsigned long dots;
+        unsigned long m_solutions;
+        unsigned long m_nodes;
+        unsigned long m_dots;
 
-    float starttime;
+        float m_starttime;
 }; /* end of CStatistics */
 
 #endif /* _STATISTICS_H_ */

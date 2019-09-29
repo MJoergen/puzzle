@@ -5,13 +5,11 @@
 #include "array.h"
 #include "statistics.h"
 
-using namespace std;
-
 void CStatistics::Update(const Array<int>& board)
 {
     TRACE_FUNCTION("CStatistics::Update");
     int block1, block2;
-    Array<int> blockTouchesTemp(num_blocks, num_blocks);
+    Array<int> blockTouchesTemp(m_num_blocks, m_num_blocks);
 
     blockTouchesTemp.Fill(0);
 
@@ -41,14 +39,14 @@ void CStatistics::Update(const Array<int>& board)
         } /* end of for col */
     } /* end of for row */
 
-    for (unsigned int block1=0; block1<num_blocks; block1++)
+    for (unsigned int block1=0; block1<m_num_blocks; block1++)
     {
         blockTouchesTemp[block1][block1] = 0;
-        for (unsigned int block2=0; block2<num_blocks; block2++)
+        for (unsigned int block2=0; block2<m_num_blocks; block2++)
         {
-            blockTouches[block1][block2] += blockTouchesTemp[block1][block2];
+            m_blockTouches[block1][block2] += blockTouchesTemp[block1][block2];
             if (blockTouchesTemp[block1][block2])
-                blockTouchesNonZero[block1][block2]++;
+                m_blockTouchesNonZero[block1][block2]++;
         } /* end of for block2 */
     } /* end of for block1 */
 
@@ -58,35 +56,35 @@ void CStatistics::Clear(void)
 {
     TRACE_FUNCTION("CStatistics::Clear");
 #ifdef STATISTICS
-    for (unsigned int block1=0; block1<num_blocks; block1++)
+    for (unsigned int block1=0; block1<m_num_blocks; block1++)
     {
-        examine_tests[block1]    = 0;
-        examine_nolegal[block1]  = 0;
-        examine_onlymove[block1] = 0;
-        examine_cutoffs[block1]  = 0;
-        examine_oneblock[block1] = 0;
-        examine_recurse[block1]  = 0;
+        m_examine_tests[block1]    = 0;
+        m_examine_nolegal[block1]  = 0;
+        m_examine_onlymove[block1] = 0;
+        m_examine_cutoffs[block1]  = 0;
+        m_examine_oneblock[block1] = 0;
+        m_examine_recurse[block1]  = 0;
     }
 #endif
 
-    blockTouches.Fill(0);
-    blockTouchesNonZero.Fill(0);
+    m_blockTouches.Fill(0);
+    m_blockTouchesNonZero.Fill(0);
 
-    solutions = 0;
-    nodes = 0;
-    dots = 0;
+    m_solutions = 0;
+    m_nodes = 0;
+    m_dots = 0;
 
 } /* end of Clear */
 
 void CStatistics::StartTimer(void)
 {
-    starttime = (float)clock()/(float)CLOCKS_PER_SEC;
+    m_starttime = (float)clock()/(float)CLOCKS_PER_SEC;
 }
 
 void CStatistics::Print(void) const
 {
-    cout << "Block connection statistics." << endl;
-    cout << "[B1,B2]: count, nonzero" << endl;
+    std::cout << "Block connection statistics." << std::endl;
+    std::cout << "[B1,B2]: count, nonzero" << std::endl;
 
 #ifdef STATISTICS
     unsigned long num_tests     = 0;
@@ -97,48 +95,48 @@ void CStatistics::Print(void) const
     unsigned long num_recurse   = 0;
 #endif
 
-    for (unsigned int block1=0; block1<num_blocks; block1++)
+    for (unsigned int block1=0; block1<m_num_blocks; block1++)
     {
 #ifdef STATISTICS
-        printf("Examined tests: %ld\n",   examine_tests[block1]);
-        printf("Examined nolegal: %ld\n",  examine_nolegal[block1]);
-        printf("Examined onlymove: %ld\n", examine_onlymove[block1]);
-        printf("Examined cutoffs: %ld\n",  examine_cutoffs[block1]);
-        printf("Examined oneblock: %ld\n", examine_oneblock[block1]);
-        printf("Examined recurse: %ld\n",  examine_recurse[block1]);
-        num_tests     += examine_tests[block1];
-        num_nolegal   += examine_nolegal[block1];
-        num_onlymove  += examine_onlymove[block1];
-        num_cutoffs   += examine_cutoffs[block1];
-        num_oneblock  += examine_oneblock[block1];
-        num_recurse   += examine_recurse[block1];
+        printf("Examined tests: %ld\n",    m_examine_tests[block1]);
+        printf("Examined nolegal: %ld\n",  m_examine_nolegal[block1]);
+        printf("Examined onlymove: %ld\n", m_examine_onlymove[block1]);
+        printf("Examined cutoffs: %ld\n",  m_examine_cutoffs[block1]);
+        printf("Examined oneblock: %ld\n", m_examine_oneblock[block1]);
+        printf("Examined recurse: %ld\n",  m_examine_recurse[block1]);
+        num_tests     += m_examine_tests[block1];
+        num_nolegal   += m_examine_nolegal[block1];
+        num_onlymove  += m_examine_onlymove[block1];
+        num_cutoffs   += m_examine_cutoffs[block1];
+        num_oneblock  += m_examine_oneblock[block1];
+        num_recurse   += m_examine_recurse[block1];
 #endif
-        for (unsigned int block2=0; block2<num_blocks; block2++)
+        for (unsigned int block2=0; block2<m_num_blocks; block2++)
         {
-            cout << "[" << block1 << "," << block2 << "]: " <<
-                blockTouches[block1][block2] << " " << 
-                blockTouchesNonZero[block1][block2] << endl;
+            std::cout << "[" << block1 << "," << block2 << "]: " <<
+                m_blockTouches[block1][block2] << " " << 
+                m_blockTouchesNonZero[block1][block2] << std::endl;
         } /* end of for block2 */
-        cout << endl;
+        std::cout << std::endl;
     } /* end of for block1 */
 
     float endtime = (float)clock()/(float)CLOCKS_PER_SEC;
-    cout << "A total of " << dots << nodes << " nodes searched." << endl;
+    std::cout << "A total of " << m_dots << m_nodes << " nodes searched." << std::endl;
 #ifdef STATISTICS
-    cout << "Number of tests    : " << setw(10) << num_tests << endl;
-    cout << "Number of nolegal  : " << setw(10) << num_nolegal << endl;
-    cout << "Number of onlymove : " << setw(10) << num_onlymove << endl;
-    cout << "Number of cutoffs  : " << setw(10) << num_cutoffs << endl;
-    cout << "Number of oneblock : " << setw(10) << num_oneblock << endl;
-    cout << "Number of recurse  : " << setw(10) << num_recurse << endl;
+    std::cout << "Number of tests    : " << std::setw(10) << num_tests << std::endl;
+    std::cout << "Number of nolegal  : " << std::setw(10) << num_nolegal << std::endl;
+    std::cout << "Number of onlymove : " << std::setw(10) << num_onlymove << std::endl;
+    std::cout << "Number of cutoffs  : " << std::setw(10) << num_cutoffs << std::endl;
+    std::cout << "Number of oneblock : " << std::setw(10) << num_oneblock << std::endl;
+    std::cout << "Number of recurse  : " << std::setw(10) << num_recurse << std::endl;
 #endif
-    cout << "A total of " << solutions << " solutions found," << endl;
-    cout << "including rotations and reflections." << endl;
+    std::cout << "A total of " << m_solutions << " solutions found," << std::endl;
+    std::cout << "including rotations and reflections." << std::endl;
 
-    float nodes_pr_sec = (1.0*NODES_PER_DOT*dots + nodes) / (endtime-starttime);
+    float nodes_pr_sec = (1.0*NODES_PER_DOT*m_dots + m_nodes) / (endtime-m_starttime);
 
-    cout << "Total time used: " << endtime-starttime << endl;
-    cout << "Nodes pr second: " << (int) nodes_pr_sec << endl;
+    std::cout << "Total time used: " << endtime-m_starttime << std::endl;
+    std::cout << "Nodes pr second: " << (int) nodes_pr_sec << std::endl;
 
 } /* end of Print */
 

@@ -1,10 +1,7 @@
-
 #ifndef _BITMAP_H_
 #define _BITMAP_H_
 
 #include <ostream>
-
-using namespace std;
 
 #define LONG_IS_8_BYTES
 
@@ -12,49 +9,49 @@ using namespace std;
 
 class CBitMap /* bitmap_type; */
 {
-    friend ostream& operator<<(ostream& os, const CBitMap& bitmap);
+    friend std::ostream& operator<<(std::ostream& os, const CBitMap& bitmap);
     friend CBitMap operator~(const CBitMap& bitmap);
 
     public:
     CBitMap(unsigned long hi = 0, unsigned long lo = 0) :
-        hi(hi), lo(lo) {}	// default constructor
+        m_hi(hi), m_lo(lo) {}	// default constructor
 
     void SetBit(int bit_num)
     {
         if (bit_num<32)
-            lo |= (1 << bit_num);
+            m_lo |= (1 << bit_num);
         else
-            hi |= (1 << (bit_num-32));
+            m_hi |= (1 << (bit_num-32));
     }
 
     int IsBitSet(int bit_num) const
     {
         if (bit_num<32)
-            return (lo & (1 << bit_num));
+            return (m_lo & (1 << bit_num));
         else
-            return (hi & (1 << (bit_num-32)));
+            return (m_hi & (1 << (bit_num-32)));
     }
 
     bool operator == (const CBitMap& rhs) const
     {
-        return (hi == rhs.hi) && (lo == rhs.lo);
+        return (m_hi == rhs.m_hi) && (m_lo == rhs.m_lo);
     }
 
     void Clear(void)
     {
-        hi=0;
-        lo=0;
+        m_hi=0;
+        m_lo=0;
     }
 
     bool AreBitsDistinct(const CBitMap& rhs) const
     {
-        return ((hi & rhs.hi) == 0) && ((lo & rhs.lo) == 0);
+        return ((m_hi & rhs.m_hi) == 0) && ((m_lo & rhs.m_lo) == 0);
     }
 
     CBitMap& operator &= (const CBitMap& rhs)
     {
-        hi &= rhs.hi;
-        lo &= rhs.lo;
+        m_hi &= rhs.m_hi;
+        m_lo &= rhs.m_lo;
 
         return *this;
     }
@@ -68,15 +65,15 @@ class CBitMap /* bitmap_type; */
 
     CBitMap& operator |= (const CBitMap& rhs)
     {
-        hi |= rhs.hi;
-        lo |= rhs.lo;
+        m_hi |= rhs.m_hi;
+        m_lo |= rhs.m_lo;
 
         return *this;
     }
 
     private:
-    unsigned long hi;
-    unsigned long lo;
+    unsigned long m_hi;
+    unsigned long m_lo;
 }; /* end of CBitMap */
 
 #endif // LONG_IS_4_BYTES
@@ -85,41 +82,41 @@ class CBitMap /* bitmap_type; */
 
 class CBitMap /* bitmap_type; */
 {
-    friend ostream& operator<<(ostream& os, const CBitMap& bitmap);
+    friend std::ostream& operator<<(std::ostream& os, const CBitMap& bitmap);
     friend CBitMap operator~(const CBitMap& bitmap);
 
     public:
     CBitMap(unsigned long lo = 0) :
-        lo(lo) {}	// default constructor
+        m_lo(lo) {}	// default constructor
 
     void SetBit(int bit_num)
     {
-        lo |= (1UL << bit_num);
+        m_lo |= (1UL << bit_num);
     }
 
     bool IsBitSet(int bit_num) const
     {
-        return (lo & (1UL << bit_num));
+        return (m_lo & (1UL << bit_num));
     }
 
     bool operator == (const CBitMap& rhs) const
     {
-        return (lo == rhs.lo);
+        return (m_lo == rhs.m_lo);
     }
 
     void Clear(void)
     {
-        lo=0;
+        m_lo=0;
     }
 
     bool AreBitsDistinct(const CBitMap& rhs) const
     {
-        return ((lo & rhs.lo) == 0);
+        return ((m_lo & rhs.m_lo) == 0);
     }
 
     CBitMap& operator &= (const CBitMap& rhs)
     {
-        lo &= rhs.lo;
+        m_lo &= rhs.m_lo;
 
         return *this;
     }
@@ -133,13 +130,13 @@ class CBitMap /* bitmap_type; */
 
     CBitMap& operator |= (const CBitMap& rhs)
     {
-        lo |= rhs.lo;
+        m_lo |= rhs.m_lo;
 
         return *this;
     }
 
     private:
-    unsigned long lo;
+    unsigned long m_lo;
 }; /* end of CBitMap */
 
 #endif // LONG_IS_8_BYTES

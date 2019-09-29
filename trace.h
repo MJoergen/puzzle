@@ -1,113 +1,105 @@
 #ifndef _TRACE_H_
 #define _TRACE_H_
 
-#ifdef __USE_STD_IOSTREAM
 #include <stdio.h>
 #include <streambuf>
 #include <ostream>
-#else
-#include <cstdio>
-#include <streambuf.h>
-#endif
-//#include <iostream.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
-
-//#define USE_TRACE
 
 #ifdef USE_TRACE
 
 class CAppendFile
 {
-public:
-    CAppendFile(const char *fileName)
-    {
-	fd = open(fileName, O_CREAT | O_WRONLY | O_APPEND, 0644);
-    }
-    ~CAppendFile()
-    {
-	if (fd != -1)
-	    close(fd);
-    }
-    int Write(char *buffer, int num)
-    {
-	return write(fd, buffer, num);
-    }
-private:
-    int fd;
+    public:
+        CAppendFile(const char *fileName)
+        {
+            fd = open(fileName, O_CREAT | O_WRONLY | O_APPEND, 0644);
+        }
+        ~CAppendFile()
+        {
+            if (fd != -1)
+                close(fd);
+        }
+        int Write(char *buffer, int num)
+        {
+            return write(fd, buffer, num);
+        }
+    private:
+        int fd;
 };
 
 class CTraceBuf : public std::streambuf
 {
-protected:
-    static const int bufferSize = 200;
-    char buffer[bufferSize];
+    protected:
+        static const int bufferSize = 200;
+        char buffer[bufferSize];
 
-public:
-    CTraceBuf(const char *fileName) : fileName(fileName)
+    public:
+        CTraceBuf(const char *fileName) : fileName(fileName)
     {
-	setp(buffer, buffer + (bufferSize-1));
+        setp(buffer, buffer + (bufferSize-1));
     }
 
-    virtual ~CTraceBuf()
-    {
-	sync();
-    }
+        virtual ~CTraceBuf()
+        {
+            sync();
+        }
 
-protected:
-    int flushBuffer()
-    {
-	int num = pptr() - pbase();
-	{
-	    CAppendFile fd(fileName);
+    protected:
+        int flushBuffer()
+        {
+            int num = pptr() - pbase();
+            {
+                CAppendFile fd(fileName);
 
-	    if (fd.Write(buffer, num) != num)
-	    {
-		return EOF;
-	    }
-	}
-	
-	pbump (-num);
-	return num;
-    }
+                if (fd.Write(buffer, num) != num)
+                {
+                    return EOF;
+                }
+            }
 
-    virtual int overflow(int c)
-    {
-	if (c != EOF)
-	{
-	    *pptr() = c;
-	    pbump(1);
-	}
+            pbump (-num);
+            return num;
+        }
 
-	if (flushBuffer() == EOF)
-	{
-	    return EOF;
-	}
+        virtual int overflow(int c)
+        {
+            if (c != EOF)
+            {
+                *pptr() = c;
+                pbump(1);
+            }
 
-	return c;
-    }
+            if (flushBuffer() == EOF)
+            {
+                return EOF;
+            }
 
-    virtual int sync()
-    {
-	if (flushBuffer() == EOF)
-	{
-	    return -1;
-	}
-	return 0;
-    }
-private:
-    const char *fileName;
+            return c;
+        }
+
+        virtual int sync()
+        {
+            if (flushBuffer() == EOF)
+            {
+                return -1;
+            }
+            return 0;
+        }
+    private:
+        const char *fileName;
 }; /* end of class CTraceBuf */
 
 class CTrace : public std::ostream
 {
-protected:
-    CTraceBuf buf;
-public:
-    CTrace(const char *fileName) :
-        std::ostream(&buf) ,
-	buf(fileName)
+    protected:
+        CTraceBuf buf;
+    public:
+        CTrace(const char *fileName) :
+            std::ostream(&buf) ,
+            buf(fileName)
     {
     }
 }; /* end of class CTrace */
@@ -116,19 +108,19 @@ extern CTrace gTrace;
 
 class CTraceFunction
 {
-public:
-    CTraceFunction(const char *functionName) :
-	functionName(functionName)
+    public:
+        CTraceFunction(const char *functionName) :
+            functionName(functionName)
     {
-	gTrace << "+" << functionName << std::endl;
+        gTrace << "+" << functionName << std::endl;
     }
-    ~CTraceFunction()
-    {
-	gTrace << "-" << functionName << std::endl;
-    }
+        ~CTraceFunction()
+        {
+            gTrace << "-" << functionName << std::endl;
+        }
 
-private:
-    const char *functionName;
+    private:
+        const char *functionName;
 }; /* end of class CTraceFunction */
 
 #define TRACE(x) gTrace << x;

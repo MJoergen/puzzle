@@ -3,33 +3,33 @@
 #include <iomanip>
 
 #ifdef LONG_IS_4_BYTES
-ostream& operator<<(ostream& os, const CBitMap& bitmap)
+std::ostream& operator<<(std::ostream& os, const CBitMap& bitmap)
 {
-    os << hex;
-    os << setw(8) << setfill('0') << bitmap.hi;
-    os << setw(8) << setfill('0') << bitmap.lo;
-    os << dec;
+    os << std::hex;
+    os << std::setw(8) << std::setfill('0') << bitmap.m_hi;
+    os << std::setw(8) << std::setfill('0') << bitmap.m_lo;
+    os << std::dec;
     return os;
 }
 
 CBitMap operator~(const CBitMap& bitmap)
 {
-    return CBitMap(~bitmap.hi, ~bitmap.lo);
+    return CBitMap(~bitmap.m_hi, ~bitmap.m_lo);
 }
 #endif // LONG_IS_4_BYTES
 
 #ifdef LONG_IS_8_BYTES
-ostream& operator<<(ostream& os, const CBitMap& bitmap)
+std::ostream& operator<<(std::ostream& os, const CBitMap& bitmap)
 {
-    os << hex;
-    os << setw(16) << setfill('0') << bitmap.lo;
-    os << dec;
+    os << std::hex;
+    os << std::setw(16) << std::setfill('0') << bitmap.m_lo;
+    os << std::dec;
     return os;
 }
 
 CBitMap operator~(const CBitMap& bitmap)
 {
-    return CBitMap(~bitmap.lo);
+    return CBitMap(~bitmap.m_lo);
 }
 #endif // LONG_IS_8_BYTES
 

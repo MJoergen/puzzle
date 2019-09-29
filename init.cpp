@@ -7,28 +7,28 @@
   OOO
    O
 
-  OO		SQ	1
+  OO		SQ	    1
   OO
 
-  OOOOO		BAR	2
+  OOOOO		BAR	    2
 
-  OO		M	3
+  OO		M	    3
    OO
     O
 
-  O		Z	4
+  O		    Z	    4
   OOO
     O
 
-  OOO		L	5
+  OOO		L	    5
     O
     O
 
-    O		T	6
+    O		T	    6
   OOO
     O
 
-  OOO		U	7
+  OOO		U	    7
   O O
 
   OOOO		HOOK	8
@@ -44,7 +44,7 @@
   OOO
    O
 
-  OOO		BOX	12
+  OOO		BOX	    12
    OO
 
 */
@@ -140,8 +140,8 @@
   { BLOCK_PLUS, BLOCK_SQ, BLOCK_BAR, BLOCK_M, BLOCK_Z, BLOCK_L, BLOCK_T, \
     BLOCK_U, BLOCK_HOOK, BLOCK_FLASH, BLOCK_TRIP, BLOCK_TWID, BLOCK_BOX } };
 
-SInitInfo init_data = GAME_8x8
-//SInitInfo init_data = GAME_7x7b
+//SInitInfo init_data = GAME_8x8
+SInitInfo init_data = GAME_7x7b
 //SInitInfo init_data = GAME_1x16
 //SInitInfo init_data = GAME_1x27
 

@@ -11,8 +11,6 @@
 
 #define NO_DEBUG_LEVEL 16
 
-using namespace std;
-
 int wait(void)
 {
 #ifdef DEBUG_LEVEL
@@ -39,15 +37,15 @@ int main(void)
 
     const COrientations orientations(init_data.blockInfo, init_data.blocks);
 
-    cout << "All the orientations used:" << endl << orientations;
+    std::cout << "All the orientations used:" << std::endl << orientations;
     if (!wait()) return 1;
 
     CSolver solver(orientations, init_data.rows, init_data.cols);
 
-    cout << endl;
+    std::cout << std::endl;
     if (!wait()) return 1;
 
-    cerr << NODES_PER_DOT << " nodes per dot." << endl;
+    std::cerr << NODES_PER_DOT << " nodes per dot." << std::endl;
 
     solver.Solve();
 
