@@ -1,6 +1,6 @@
-sources  = block.cpp
+sources  = main.cpp
+sources += block.cpp
 sources += init.cpp
-sources += puzzle.cpp
 sources += statistics.cpp
 sources += solver.cpp
 sources += bitmap.cpp
