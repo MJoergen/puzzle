@@ -4,14 +4,14 @@
 
 #include "bitmap.h"
 #include "block.h"
-#include "init.h"
+#include "initInfo.h"
 
 class COrientations
 {
     friend std::ostream& operator<<(std::ostream& os, const COrientations& orientation);
 
     public:
-        COrientations(SBlockInfo block_info_init[], int num_blocks);
+        COrientations(std::vector<BlockInfo> blocks);
 
         unsigned int NumBlocks(void) const { return m_blocks.size(); }
         const CBlock& Block(int block) const { return m_blocks[block]; }

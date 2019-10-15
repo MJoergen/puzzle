@@ -6,7 +6,7 @@
 
 #include "orientation.h"
 #include "statistics.h"
-#include "init.h"
+#include "initInfo.h"
 #include "solver.h"
 
 #define NO_DEBUG_LEVEL 16
@@ -29,18 +29,27 @@ int wait(void)
 #define NODES_PER_DOT 10000
 
 
-int main(void)
+int main(int argc, char **argv)
 {
     TRACE_FUNCTION("::main");
 
     setbuf(stdout, NULL);
 
-    const COrientations orientations(init_data.blockInfo, init_data.blocks);
+    InitInfo initInfo;
+
+    std::string fileName("8x8.txt");
+    if (argc > 1)
+    {
+        fileName = argv[1];
+    }
+    initInfo.ReadFromFile(fileName);
+
+    const COrientations orientations(initInfo.m_blocks);
 
     std::cout << "All the orientations used:" << std::endl << orientations;
     if (!wait()) return 1;
 
-    CSolver solver(orientations, init_data.rows, init_data.cols);
+    CSolver solver(orientations, initInfo.m_rows, initInfo.m_cols);
 
     std::cout << std::endl;
     if (!wait()) return 1;

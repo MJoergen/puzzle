@@ -16,19 +16,19 @@ std::ostream& operator<<(std::ostream& os, const COrientations& orientation)
 
 /**************************************************************************
  **************************************************************************/
-COrientations::COrientations(SBlockInfo block_info_init[], int num_blocks)
+COrientations::COrientations(std::vector<BlockInfo> blocks)
 {
     TRACE_FUNCTION("COrientations::COrientations");
-    m_blocks.resize(num_blocks);
+    m_blocks.resize(blocks.size());
 
-    for (int block=0; block<num_blocks; block++)
+    for (unsigned int block=0; block<blocks.size(); block++)
     {
         /* Build vector of squares for each block */
         std::vector<CSquare> squares;
-        for (int sq=0; sq<block_info_init[block].num_squares; sq++)
+        for (unsigned int sq=0; sq<blocks[block].m_squares.size(); sq++)
         {
-            SSquare& sq_data = block_info_init[block].square_data[sq];
-            squares.push_back(CSquare(sq_data.row, sq_data.col));
+            SqInfo& sq_data = blocks[block].m_squares[sq];
+            squares.push_back(CSquare(sq_data.m_row, sq_data.m_col));
         }
 
         /* Build each block */

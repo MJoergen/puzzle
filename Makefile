@@ -1,6 +1,6 @@
 sources  = main.cpp
+sources += initInfo.cpp
 sources += block.cpp
-sources += init.cpp
 sources += statistics.cpp
 sources += solver.cpp
 sources += bitmap.cpp
@@ -10,7 +10,7 @@ sources += array.cpp
 objects = $(sources:.cpp=.o)
 depends = $(sources:.cpp=.d)
 CC = gcc
-DEFINES  = -Wall -O3 
+DEFINES  = -Wall -Wextra -O3 -march=native
 #DEFINES  = -Wall -O3 -g -pg
 #DEFINES += -DNDEBUG
 #DEFINES += -DUSE_TRACE
