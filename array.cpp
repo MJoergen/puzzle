@@ -2,8 +2,6 @@
 
 #include "array.h"
 
-/**************************************************************************
- **************************************************************************/
 std::ostream& operator<<(std::ostream& os, const Array<int>& board)
 {
     for (unsigned int row=0; row<board.Rows(); row++)

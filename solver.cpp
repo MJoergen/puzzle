@@ -71,7 +71,7 @@ void CSolver::PrintStats()
 void CSolver::CreateBitMaps(std::vector<CBitMap>& bitmaps, const CBlock& block, const CSquare& offset)
 {
     TRACE_FUNCTION("CSolver::CreateBitMaps");
-    for (int orientation=0; orientation<block.NumOrientations(); orientation++)
+    for (unsigned int orientation=0; orientation<block.NumOrientations(); orientation++)
     {
         const CBlock::configuration_type& configuration = block.Configuration(orientation);
         CBitMap tempBitmap; 
