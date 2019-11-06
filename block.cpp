@@ -43,9 +43,9 @@ std::ostream& operator<<(std::ostream& os, const CBlock& block)
         for (unsigned int elem=0; elem<block.m_configurations[orientation].size(); elem++)
         {
             os << block.m_configurations[orientation][elem] << " ";
-        } /* end of for element */
+        }
         os << std::endl;
-    } /* end of for orientation */
+    }
 
     return os;
 } /* end of Show */

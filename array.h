@@ -1,20 +1,25 @@
 #ifndef _ARRAY_H_
 #define _ARRAY_H_
 
-// This class is a wrapper for a two-dimensional array.
+// This class is a wrapper for a two-dimensional array of generic type.
 
-#include "trace.h"
 #include <vector>
+#include "trace.h"
 
 template <class T>
 class Array
 {
+    private:
+        Array();  // Prevent default constructor
+
     public:
-        Array(int rows, int cols) : m_rows(rows), m_cols(cols)
+        // Constructor requires dimensions.
+        Array(unsigned int rows, unsigned int cols) : m_rows(rows), m_cols(cols)
         {
-            Resize(rows, cols);
+            m_data.resize(rows);
+            for (unsigned int i=0; i<rows; i++)
+                m_data[i].resize(cols);
         }
-        typedef std::vector< T > row_type;
 
         void Fill(T val)
         {
@@ -26,31 +31,21 @@ class Array
                     m_data[i][j] = val;
                 }
             }
-        }
+        } // Fill
+
         unsigned int Rows() const { return m_rows; }
         unsigned int Cols() const { return m_cols; }
-        row_type& operator[](unsigned int row) { return m_data[row];}
+
+        // Row access
+        typedef std::vector< T > row_type;
+        row_type& operator[](unsigned int row)             { return m_data[row];}
         const row_type& operator[](unsigned int row) const { return m_data[row];}
 
     private:
-        Array();
-
-    private:
-        void Resize(unsigned int new_rows, unsigned int new_cols)
-        {
-            m_rows = new_rows;
-            m_cols = new_cols;
-
-            m_data.resize(m_rows);
-            for (unsigned int i=0; i<m_rows; i++)
-                m_data[i].resize(m_cols);
-        }
-
-    private:
         std::vector< row_type > m_data;
-        unsigned int m_rows;
-        unsigned int m_cols;
-}; /* end of class Array */
+        unsigned int            m_rows;
+        unsigned int            m_cols;
+}; // end of class Array
 
 std::ostream& operator<<(std::ostream& os, const Array<int>& board);
 
