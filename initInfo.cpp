@@ -1,3 +1,5 @@
+#include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -20,6 +22,33 @@ static std::istringstream readLine(std::ifstream& ifs)
         return std::istringstream(line);
     }
 } // readLine
+
+bool operator == (const SqInfo& lhs, const SqInfo& rhs)
+{
+   return lhs.m_row == rhs.m_row && lhs.m_col == rhs.m_col;
+}
+
+static bool isSquareInBlock(const BlockInfo& blockInfo, const SqInfo& sqInfo)
+{
+   return std::find(blockInfo.m_squares.begin(), blockInfo.m_squares.end(), sqInfo) != blockInfo.m_squares.end();
+}
+
+static void showBlockInfo(const BlockInfo& blockInfo)
+{
+   for (int y=0; y<10; ++y)
+   {
+      for (int x=0; x<10; ++x)
+      {
+         SqInfo sqInfo = {y, x};
+         if (isSquareInBlock(blockInfo, sqInfo))
+            std::cout << "X";
+         else
+            std::cout << ".";
+      }
+      std::cout << std::endl;
+   }
+   std::cout << std::endl;
+} // end of showBlockInfo
 
 void InitInfo::ReadFromFile(std::string fileName)
 {
@@ -46,6 +75,8 @@ void InitInfo::ReadFromFile(std::string fileName)
             readLine(infile) >> sq.m_row >> sq.m_col;
             blockInfo.m_squares.push_back(sq);
         }
+
+        showBlockInfo(blockInfo);
 
         m_blocks.push_back(blockInfo);
     }
