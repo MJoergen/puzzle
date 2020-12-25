@@ -3,14 +3,14 @@
 
 std::ostream& operator<<(std::ostream& os, const CBitMap& bitmap)
 {
-    os << std::hex;
-    os << std::setw(16) << std::setfill('0') << bitmap.m_val;
-    os << std::dec;
-    return os;
+   return os << bitmap.m_val;
 }
 
 CBitMap operator~(const CBitMap& bitmap)
 {
-    return CBitMap(~bitmap.m_val);
+   CBitMap temp;
+   temp.m_val.set();
+   temp.m_val ^= bitmap.m_val;
+   return temp;
 }
 

@@ -3,6 +3,7 @@
 
 // This class allows for manipulation of individual bits inside a 64-bit value.
 
+#include <bitset>
 #include <ostream>
 
 class CBitMap
@@ -12,8 +13,8 @@ class CBitMap
 
     public:
        // Constructor
-       CBitMap(uint64_t val = 0) :
-           m_val(val) {}
+       CBitMap() :
+           m_val(0) {}
 
        // Modifiers
        void Clear(void)
@@ -23,7 +24,7 @@ class CBitMap
 
        void SetBit(int bit_num)
        {
-           m_val |= (1UL << bit_num);
+           m_val[bit_num] = 1;
        }
 
        CBitMap& operator &= (const CBitMap& rhs)
@@ -41,7 +42,7 @@ class CBitMap
        // Inspectors
        bool IsBitSet(int bit_num) const
        {
-           return (m_val & (1UL << bit_num));
+           return m_val[bit_num];
        }
 
        bool operator == (const CBitMap& rhs) const
@@ -62,7 +63,7 @@ class CBitMap
        }
 
     private:
-       uint64_t m_val;
+       std::bitset<256> m_val;
 }; /* end of CBitMap */
 
 #endif /* _BITMAP_H_ */
