@@ -10,7 +10,10 @@ sources += array.cpp
 objects = $(sources:.cpp=.o)
 depends = $(sources:.cpp=.d)
 CC = gcc
-DEFINES  = -Wall -Wextra -O3 -march=native
+# Number of bits in a bitmap, i.e. the maximum number of squares on the board.
+# Use 256 for the 16x16 puzzle. Run "make clean" after changing it.
+BITMAP_BITS ?= 64
+DEFINES  = -Wall -Wextra -O3 -march=native -DBITMAP_BITS=$(BITMAP_BITS)
 #DEFINES  = -Wall -O3 -g -pg
 #DEFINES += -DNDEBUG
 #DEFINES += -DUSE_TRACE
@@ -18,7 +21,10 @@ DEFINES  = -Wall -Wextra -O3 -march=native
 
 puzzle: $(objects) Makefile
 	$(CC) -o $@ $(DEFINES) $(objects) -lstdc++
-	mv $@ $(HOME)/bin
+
+install: puzzle
+	mkdir -p $(HOME)/bin
+	cp puzzle $(HOME)/bin
 
 %.d: %.cpp Makefile
 	set -e; $(CC) -M $(CPPFLAGS) $(DEFINES) $(INCLUDE_DIRS) $< \
@@ -30,7 +36,8 @@ include $(depends)
 %.o :
 	$(CC) $(DEFINES) $(INCLUDE_DIRS) -c $< -o $@
 
-clean: Makefile
-	-rm $(objects)
-	-rm $(depends)
+clean:
+	-rm -f puzzle $(objects) $(depends)
+
+.PHONY: install clean
 

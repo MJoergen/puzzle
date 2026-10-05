@@ -42,7 +42,22 @@ int main(int argc, char **argv)
     {
         fileName = argv[1];
     }
-    initInfo.ReadFromFile(fileName);
+    if (!initInfo.ReadFromFile(fileName))
+        return 1;
+
+    if (initInfo.m_rows * initInfo.m_cols > CBitMap::MaxBits)
+    {
+        std::cerr << "Board has " << initInfo.m_rows * initInfo.m_cols
+                  << " squares, but this build supports at most " << CBitMap::MaxBits
+                  << ". Rebuild with: make clean; make BITMAP_BITS=256" << std::endl;
+        return 1;
+    }
+
+    if (initInfo.m_blocks.size() > MAX_BLOCKS)
+    {
+        std::cerr << "At most " << MAX_BLOCKS << " blocks are supported." << std::endl;
+        return 1;
+    }
 
     const COrientations orientations(initInfo.m_blocks);
 
