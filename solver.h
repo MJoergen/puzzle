@@ -11,7 +11,10 @@ class CSolver
         void PrintStats();
 
     private:
-        void PlaceBitMaps(CBitMap bitmap, unsigned int first_block, unsigned int num_blocks);
+        void PlaceBitMaps(const CBitMap& bitmap, unsigned int num_blocks);
+        void BuildSquareIndex();
+        void CountNode();
+        void FoundSolution();
         void CreateBitMaps(std::vector<CBitMap>& bitmaps, const CBlock& block, const CSquare& sq);
         void BuildBitMaps(int in_rows, int in_cols);
         void ClearBitMapIndex(void);
@@ -32,6 +35,9 @@ class CSolver
         std::vector< signed short > m_bitmapIndex; // Holds current bitmap used by each block
         Array< int >                m_board;
         CBitMap                     m_allBitsSet;
+        // For each block and square, the indices of the bitmaps whose lowest
+        // set bit is that square.
+        std::vector< std::vector< std::vector<int> > > m_byLowest;
 
 }; /* end of class CSolver */
 

@@ -58,6 +58,11 @@ class CBitMap
            return (m_val == rhs.m_val);
        }
 
+       // Index of the lowest set bit, or MaxBits if none.
+       int FirstSetBit() const { return m_val._Find_first(); }
+       // Index of the lowest clear bit, or MaxBits if none.
+       int FirstClearBit() const { return (~m_val)._Find_first(); }
+
        bool AreBitsDistinct(const CBitMap& rhs) const
        {
            return ((m_val & rhs.m_val) == 0);
