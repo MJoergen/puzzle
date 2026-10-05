@@ -5,12 +5,20 @@
 
 #include "initInfo.h"
 
+// Returns the next line that is neither empty nor a comment. At end of file
+// the returned stream is in a failed state.
 static std::istringstream readLine(std::ifstream& ifs)
 {
     std::string line;
     while (true)
     {
-        std::getline(ifs, line);
+        if (!std::getline(ifs, line))
+        {
+            std::istringstream eof;
+            eof.setstate(std::ios::failbit);
+            return eof;
+        }
+
         // Skip empty lines
         if (line == "")
             continue;
@@ -50,29 +58,44 @@ static void showBlockInfo(const BlockInfo& blockInfo)
    std::cout << std::endl;
 } // end of showBlockInfo
 
-void InitInfo::ReadFromFile(std::string fileName)
+bool InitInfo::ReadFromFile(std::string fileName)
 {
     std::ifstream infile(fileName);
+    if (!infile)
+    {
+        std::cerr << "Cannot open file " << fileName << std::endl;
+        return false;
+    }
 
     // Read size of board.
-    readLine(infile) >> m_rows;
-    readLine(infile) >> m_cols;
-
-    // Read number of blocks.
     int num_blocks;
-    readLine(infile) >> num_blocks;
+    if (!(readLine(infile) >> m_rows) ||
+        !(readLine(infile) >> m_cols) ||
+        !(readLine(infile) >> num_blocks))  // Read number of blocks.
+    {
+        std::cerr << fileName << ": Missing board size or number of blocks" << std::endl;
+        return false;
+    }
 
     for (int i=0; i<num_blocks; ++i)
     {
         // Read number of squares for this block.
         int num_squares;
-        readLine(infile) >> num_squares;
+        if (!(readLine(infile) >> num_squares))
+        {
+            std::cerr << fileName << ": Missing size of block " << i << std::endl;
+            return false;
+        }
 
         BlockInfo blockInfo;
         for (int j=0; j<num_squares; ++j)
         {
             SqInfo sq;
-            readLine(infile) >> sq.m_row >> sq.m_col;
+            if (!(readLine(infile) >> sq.m_row >> sq.m_col))
+            {
+                std::cerr << fileName << ": Missing square " << j << " of block " << i << std::endl;
+                return false;
+            }
             blockInfo.m_squares.push_back(sq);
         }
 
@@ -80,5 +103,5 @@ void InitInfo::ReadFromFile(std::string fileName)
 
         m_blocks.push_back(blockInfo);
     }
+    return true;
 } // ReadFromFile
-

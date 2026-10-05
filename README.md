@@ -15,3 +15,15 @@ One such solution is:
  5  1  1  7  0  0  0  8 
  5  1  1  7  7  0  8  8 
 ```
+
+## Building
+
+Run `make` to build `puzzle`, and `make install` to copy it to `~/bin`.
+
+Boards are limited to 64 squares by default, which is fastest. For larger
+boards, such as `16x16.txt`, rebuild with:
+
+```
+make clean
+make BITMAP_BITS=256
+```

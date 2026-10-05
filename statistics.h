@@ -5,7 +5,7 @@
 #include "trace.h"
 #include "array.h"
 
-#define MAX_BLOCKS 15
+#define MAX_BLOCKS 32
 
 #define NODES_PER_DOT 10000
 

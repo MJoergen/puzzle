@@ -56,7 +56,7 @@ void CStatistics::Clear(void)
 {
     TRACE_FUNCTION("CStatistics::Clear");
 #ifdef STATISTICS
-    for (unsigned int block1=0; block1<m_num_blocks; block1++)
+    for (unsigned int block1=0; block1<=MAX_BLOCKS; block1++)
     {
         m_examine_tests[block1]    = 0;
         m_examine_nolegal[block1]  = 0;
@@ -121,7 +121,7 @@ void CStatistics::Print(void) const
     } /* end of for block1 */
 
     float endtime = (float)clock()/(float)CLOCKS_PER_SEC;
-    std::cout << "A total of " << m_dots << m_nodes << " nodes searched." << std::endl;
+    std::cout << "A total of " << (unsigned long) NODES_PER_DOT*m_dots + m_nodes << " nodes searched." << std::endl;
 #ifdef STATISTICS
     std::cout << "Number of tests    : " << std::setw(10) << num_tests << std::endl;
     std::cout << "Number of nolegal  : " << std::setw(10) << num_nolegal << std::endl;

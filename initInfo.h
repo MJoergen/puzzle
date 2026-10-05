@@ -16,7 +16,7 @@ struct BlockInfo
 
 struct InitInfo
 {
-    void ReadFromFile(std::string fileName);
+    bool ReadFromFile(std::string fileName);
 
     int m_rows;
     int m_cols;

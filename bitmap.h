@@ -1,7 +1,13 @@
 #ifndef _BITMAP_H_
 #define _BITMAP_H_
 
-// This class allows for manipulation of individual bits inside a 64-bit value.
+// This class allows for manipulation of individual bits inside a fixed-size
+// bit set. The size is chosen at compile time with -DBITMAP_BITS=N, and limits
+// the number of squares on the board. Smaller is faster.
+
+#ifndef BITMAP_BITS
+#define BITMAP_BITS 64
+#endif
 
 #include <bitset>
 #include <ostream>
@@ -12,6 +18,8 @@ class CBitMap
     friend CBitMap operator~(const CBitMap& bitmap);
 
     public:
+       static const int MaxBits = BITMAP_BITS;
+
        // Constructor
        CBitMap() :
            m_val(0) {}
@@ -63,7 +71,7 @@ class CBitMap
        }
 
     private:
-       std::bitset<256> m_val;
+       std::bitset<BITMAP_BITS> m_val;
 }; /* end of CBitMap */
 
 #endif /* _BITMAP_H_ */
