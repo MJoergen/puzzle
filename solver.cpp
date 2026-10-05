@@ -29,11 +29,103 @@ void CSolver::Solve()
 
     SetAllBits(m_allBitsSet);
     BuildBitMaps(m_rows, m_cols);
+    BuildSquareIndex();
     ClearBitMapIndex();
 
     CBitMap bitmap;
-    PlaceBitMaps(bitmap, 0, 0);
+    PlaceBitMaps(bitmap, 0);
 } // Solve
+
+/**************************************************************************
+ **************************************************************************/
+void CSolver::BuildSquareIndex()
+{
+    unsigned int num_squares = m_rows*m_cols;
+    m_byLowest.assign(m_bitmaps.Rows(), std::vector< std::vector<int> >(num_squares));
+    for (unsigned int block=0; block<m_bitmaps.Rows(); block++)
+    {
+        for (unsigned int i=0; i<m_bitmaps[block].size(); i++)
+        {
+            const CBitMap& b = m_bitmaps[block][i];
+            m_byLowest[block][b.FirstSetBit()].push_back(i);
+        }
+    }
+} // BuildSquareIndex
+
+/**************************************************************************
+ **************************************************************************/
+void CSolver::CountNode()
+{
+    m_stats.m_nodes++;
+    if (m_stats.m_nodes == NODES_PER_DOT)
+    {
+        m_stats.m_nodes = 0;
+        m_stats.m_dots++;
+        std::cerr << ".";
+    }
+} // CountNode
+
+/**************************************************************************
+ **************************************************************************/
+void CSolver::FoundSolution()
+{
+    std::cerr << "Success! count=" << m_stats.m_solutions << std::endl;
+    GenerateBoard();
+    std::cout << m_board;
+    m_stats.Update(m_board);
+    m_stats.m_solutions++;
+} // FoundSolution
+
+/**************************************************************************
+ * Fill the lowest empty square. Every solution must cover it, so only the
+ * fitting placements whose lowest square is that square are tried. This
+ * fills the board in order from the top left, which keeps the search tree
+ * small, and each step only has a handful of candidates to check.
+ **************************************************************************/
+void CSolver::PlaceBitMaps(const CBitMap& bitmap, unsigned int num_blocks)
+{
+    CountNode();
+
+#ifdef STATISTICS
+    m_stats.m_examine_tests[num_blocks]++;
+#endif
+
+    // If all blocks have been placed and the board is full, then we have
+    // solved the puzzle!
+    if (num_blocks == m_bitmapIndex.size())
+    {
+        if (bitmap == m_allBitsSet)
+            FoundSolution();
+        return;
+    }
+
+    // The board is full, but some blocks are left over.
+    int sq = bitmap.FirstClearBit();
+    if (sq >= m_rows*m_cols)
+        return;
+    for (unsigned int block = 0; block < m_bitmapIndex.size(); block++)
+    {
+        if (m_bitmapIndex[block] >= 0)
+        {
+            // This block has already been placed
+            continue;
+        }
+        const std::vector<CBitMap>& bitmapsForBlock = m_bitmaps[block];
+        const std::vector<int>& candidates = m_byLowest[block][sq];
+        for (unsigned int c=0; c<candidates.size(); c++)
+        {
+            const CBitMap& placement = bitmapsForBlock[candidates[c]];
+            if (bitmap.AreBitsDistinct(placement))
+            {
+                m_bitmapIndex[block] = candidates[c];
+                CBitMap next = bitmap;
+                next |= placement;
+                PlaceBitMaps(next, num_blocks+1);
+            }
+        }
+        m_bitmapIndex[block] = -1;
+    }
+} // PlaceBitMaps
 
 /**************************************************************************
  **************************************************************************/
@@ -168,193 +260,4 @@ void CSolver::GenerateBoard()
     } /* end of for row */
 } // GenerateBoard
 
-/**************************************************************************
- **************************************************************************/
-void CSolver::PlaceBitMaps(CBitMap bitmap, unsigned int first_block, unsigned int num_blocks)
-{
-    TRACE_FUNCTION("CSolver::PlaceBitMaps");
-
-    TRACE( "bitmap = " << bitmap << ", first_block=" << first_block << std::endl);
-
-    m_stats.m_nodes++;
-    if (m_stats.m_nodes == NODES_PER_DOT)
-    {
-        m_stats.m_nodes = 0;
-        m_stats.m_dots++;
-        std::cerr << ".";
-    }
-
-    //    GenerateBoard();
-    //    TRACE( board << std::endl);
-
-#ifdef DEBUG_LEVEL
-    if (num_blocks < DEBUG_LEVEL)
-    {
-        if (!wait()) return;
-    } /* end of if */
-#endif
-
-#ifdef STATISTICS
-    m_stats.m_examine_tests[num_blocks]++;
-#endif
-
-    unsigned int block_temp;
-
-    // For all remaining blocks, find out how many legal places it may go.
-    // Keep a record of which squares can be occupied too.
-    CBitMap bitmapTemp = bitmap;
-    CBitMap bitmapTemp2 = bitmap;
-    for (block_temp = first_block; block_temp < m_bitmapIndex.size(); block_temp++)
-    {
-        if (m_bitmapIndex[block_temp] >= 0)
-        {
-            // This block has already been placed
-            continue;
-        }
-        const std::vector<CBitMap>& bitmapsForBlock = m_bitmaps[block_temp];
-
-        int found = 0;
-        unsigned int lastIndex = 0;
-        for (unsigned int i=0; i<bitmapsForBlock.size(); i++)
-        {
-            if (bitmap.AreBitsDistinct(bitmapsForBlock[i]))
-            {
-                bitmapTemp2 |= (bitmapTemp & bitmapsForBlock[i]);
-                bitmapTemp |= bitmapsForBlock[i];
-                found++;
-                lastIndex = i;
-            } /* end of if */
-        } /* end of for */
-        TRACE( "Block " << block_temp << " has " << found << " legal moves." << std::endl);
-
-        // If a block has no legal places, then abort immediately.
-        if (!found)
-        {
-#ifdef STATISTICS
-            m_stats.m_examine_nolegal[num_blocks]++;
-#endif
-            TRACE( "Discarded." << std::endl);
-            return;
-        }
-
-        // If a block has only one place to go, then place it immediately, and return.
-        if (found == 1)
-        {
-#ifdef STATISTICS
-            m_stats.m_examine_onlymove[num_blocks]++;
-#endif
-            if (first_block == block_temp)
-                first_block++;
-
-            TRACE( "Playing block immediately, using bitmap " << lastIndex << 
-                    " " << bitmapsForBlock[lastIndex] << std::endl);
-            m_bitmapIndex[block_temp] = lastIndex;
-            bitmap |= bitmapsForBlock[lastIndex];
-            PlaceBitMaps(bitmap, first_block, num_blocks+1);
-            m_bitmapIndex[block_temp] = -1;
-            return;
-        }
-    } /* end of for */
-
-    // If some squares can not be occupied, then abort immediately.
-    if (!(bitmapTemp == m_allBitsSet))
-    {
-#ifdef STATISTICS
-        m_stats.m_examine_cutoffs[num_blocks]++;
-#endif
-        TRACE( "Discarded because board could not be filled completely." << std::endl);
-        return;
-    } /* end of if */
-
-
-    // If a square can only be occupied by *one* block/orientation,
-    // then place that immediately, and return.
-    if (!(bitmapTemp2 == m_allBitsSet))
-    {
-#ifdef STATISTICS
-        m_stats.m_examine_oneblock[num_blocks]++;
-#endif
-        TRACE( "bitmapTemp2=" << bitmapTemp2 << std::endl);
-        TRACE( "Some squares can only be covered by a single block." << std::endl);
-        CBitMap singleSquareBits(~bitmapTemp2);
-
-        // Now we search for the bitmap that covers any of the bits
-        for (block_temp = first_block; block_temp < m_bitmapIndex.size(); block_temp++)
-        {
-            if (m_bitmapIndex[block_temp] >= 0)
-            {
-                // This block has already been placed
-                continue;
-            }
-            const std::vector<CBitMap>& bitmapsForBlock = m_bitmaps[block_temp];
-
-            for (unsigned int i=0; i<bitmapsForBlock.size(); i++)
-            {
-                if (!singleSquareBits.AreBitsDistinct(bitmapsForBlock[i]) &&
-                        bitmap.AreBitsDistinct(bitmapsForBlock[i]) )
-                {
-                    TRACE( "Found block " << block_temp << ", bitmap " << i << std::endl);
-                    if (first_block == block_temp)
-                        first_block++;
-
-                    m_bitmapIndex[block_temp] = i;
-                    bitmap |= bitmapsForBlock[i];
-                    PlaceBitMaps(bitmap, first_block, num_blocks+1);
-                    m_bitmapIndex[block_temp] = -1;
-                    return;
-                }
-            }
-        }
-        TRACE( "ERROR" << std::endl);
-        exit(1); // Shouldn't reach here
-    } /* end of if */
-
-    // If all blocks have been placed, then we have solved the puzzle!
-    if (num_blocks==m_bitmapIndex.size())
-    {
-        std::cerr << "Success! count=" << m_stats.m_solutions << ", nodes=" << m_stats.m_nodes << 
-            ", dots=" << m_stats.m_dots <<
-            ", completed " << (m_bitmapIndex[0]*100)/m_bitmaps[0].size() << "%" << std::endl;
-        GenerateBoard();
-        std::cout << m_board;
-        m_stats.Update(m_board);
-        m_stats.m_solutions++;
-        return;
-    }
-
-#ifdef STATISTICS
-    m_stats.m_examine_recurse[num_blocks]++;
-#endif
-
-    // Now we search for the next block to place
-    for (block_temp = first_block; block_temp < m_bitmapIndex.size(); block_temp++)
-    {
-        if (m_bitmapIndex[block_temp] < 0)
-        {
-            // OK. Found a block that has not yet been placed.
-            break;
-        }
-    }
-
-    first_block = block_temp+1;
-
-    // Now place this block and recursively call the same function again, to
-    // place the remaining blocks.
-    TRACE( "Searching next level with block " << block_temp << std::endl);
-    const std::vector<CBitMap>& bitmapsForBlock = m_bitmaps[block_temp];
-    for (unsigned int i=0; i<bitmapsForBlock.size(); i++)
-    {
-        if (bitmap.AreBitsDistinct(bitmapsForBlock[i]))
-        {
-            TRACE( "Using bitmap " << i << " " << bitmapsForBlock[i] << std::endl);
-            m_bitmapIndex[block_temp] = i;
-
-            bitmapTemp = bitmap;
-            bitmapTemp |= bitmapsForBlock[i];
-            PlaceBitMaps(bitmapTemp, first_block, num_blocks+1);
-        }
-    } /* end of for */
-    m_bitmapIndex[block_temp] = -1;
-
-} // PlaceBitMaps
 
